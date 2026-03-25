@@ -114,6 +114,11 @@
       font-weight: bold;
     }
 
+    .status-recording {
+      color: #9a6700;
+      font-weight: bold;
+    }
+
     .small {
       font-size: 12px;
       color: #666;
@@ -134,7 +139,7 @@
 </head>
 <body>
   <h1>Mission Phrase Recorder</h1>
-  <div class="subtitle">Phrase-by-phrase data collection for mission, medical, and simple Gospel communication</div>
+  <div class="subtitle">Phrase-by-phrase data collection for mission, medical, and simple gospel communication</div>
 
   <div class="panel">
     <strong>Recorder Metadata</strong>
@@ -167,15 +172,15 @@
 
       <label>
         Collection Batch
-        <select id="collectionBatch">
-          <option value="ACO_mission_2026_Week1">ACO Mission 2026 Week1</option>
-          <option value="ACO_mission_2026_Week1">ACO Mission 2026 Week2</option>
-          <option value="ACO_Others">ACO other time</option>
-          <option value="Others">Others</option>
+	<select id="collectionBatch">
+          <option value="ACO_mission_wk1">ACO Mission wk1</option>
+          <option value="ACO_mission_wk1">ACO Mission wk2</option>
+          <option value="ACO_staff">ACO local team</option>
+          <option value="senegal_local">Senegal local</option>
+
         </select>
+
       </label>
-
-
     </div>
   </div>
 
@@ -199,43 +204,52 @@
 
     const phraseSections = [
       {
+        key: "medical",
         title: "Medical / 医疗 / Médical",
         items: [
-          {id:1, en:"Where does it hurt?", fr:"Où avez-vous mal ?", zh:"哪里不舒服？"},
-          {id:2, en:"How long have you had this?", fr:"Depuis combien de temps ?", zh:"多久了？"},
-          {id:3, en:"How do you feel?", fr:"Comment vous sentez-vous ?", zh:"感觉怎么样？"},
-          {id:4, en:"Do you have a fever?", fr:"Avez-vous de la fièvre ?", zh:"发烧吗？"},
-          {id:5, en:"Please drink water.", fr:"Buvez de l’eau", zh:"喝水"},
-          {id:6, en:"Take twice a day.", fr:"Deux fois par jour", zh:"一天两次"},
-          {id:7, en:"Take medicine.", fr:"Prenez le médicament", zh:"吃药"},
-          {id:8, en:"Come back tomorrow.", fr:"Revenez demain", zh:"明天再来"},
-          {id:9, en:"Do you feel dizzy?", fr:"Vertiges ?", zh:"头晕吗"},
-          {id:10, en:"Is pain severe?", fr:"Douleur forte ?", zh:"很疼吗"}
+          { id: 1, en: "Where does it hurt?", fr: "Où avez-vous mal ?", zh: "哪里不舒服？" },
+          { id: 2, en: "How long have you had this?", fr: "Depuis combien de temps ?", zh: "多久了？" },
+          { id: 3, en: "How do you feel?", fr: "Comment vous sentez-vous ?", zh: "感觉怎么样？" },
+          { id: 4, en: "Do you have a fever?", fr: "Avez-vous de la fièvre ?", zh: "发烧吗？" },
+          { id: 5, en: "Please drink water.", fr: "Buvez de l’eau", zh: "喝水" },
+          { id: 6, en: "Take twice a day.", fr: "Deux fois par jour", zh: "一天两次" },
+          { id: 7, en: "Take medicine.", fr: "Prenez le médicament", zh: "吃药" },
+          { id: 8, en: "Come back tomorrow.", fr: "Revenez demain", zh: "明天再来" },
+          { id: 9, en: "Do you feel dizzy?", fr: "Vertiges ?", zh: "头晕吗" },
+          { id: 10, en: "Is pain severe?", fr: "Douleur forte ?", zh: "很疼吗" }
         ]
       },
       {
+        key: "daily communication",
         title: "Daily Communication / 日常沟通 / Communication quotidienne",
         items: [
-          {id:11, en:"Hello, how are you?", fr:"Bonjour", zh:"你好"},
-          {id:12, en:"I am fine.", fr:"Je vais bien", zh:"我很好"},
-          {id:13, en:"What is your name?", fr:"Votre nom ?", zh:"你叫什么"},
-          {id:14, en:"My name is...", fr:"Je m’appelle...", zh:"我叫"},
-          {id:15, en:"Thank you.", fr:"Merci", zh:"谢谢"},
-          {id:16, en:"See you.", fr:"À bientôt", zh:"再见"}
+          { id: 11, en: "Hello, how are you?", fr: "Bonjour", zh: "你好" },
+          { id: 12, en: "I am fine.", fr: "Je vais bien", zh: "我很好" },
+          { id: 13, en: "What is your name?", fr: "Votre nom ?", zh: "你叫什么" },
+          { id: 14, en: "My name is...", fr: "Je m’appelle...", zh: "我叫" },
+          { id: 15, en: "Thank you.", fr: "Merci", zh: "谢谢" },
+          { id: 16, en: "See you.", fr: "À bientôt", zh: "再见" }
         ]
       },
       {
+        key: "gospel sharing",
         title: "Simple Gospel Sharing / 简单福音分享 / Partage simple de l’Évangile",
         items: [
-          {id:17, en:"God loves you.", fr:"Dieu vous aime", zh:"神爱你"},
-          {id:18, en:"God is good.", fr:"Dieu est bon", zh:"神是好的"},
-          {id:19, en:"We will pray for you.", fr:"Nous prions pour vous", zh:"我们为你祷告"},
-          {id:20, en:"I will pray for you.", fr:"Je prie pour vous", zh:"我为你祷告"}
+          { id: 17, en: "God loves you.", fr: "Dieu vous aime", zh: "神爱你" },
+          { id: 18, en: "God is good.", fr: "Dieu est bon", zh: "神是好的" },
+          { id: 19, en: "We will pray for you.", fr: "Nous prions pour vous", zh: "我们为你祷告" },
+          { id: 20, en: "I will pray for you.", fr: "Je prie pour vous", zh: "我为你祷告" }
         ]
       }
     ];
 
-    const allPhrases = phraseSections.flatMap(section => section.items);
+    const allPhrases = phraseSections.flatMap(section =>
+      section.items.map(item => ({
+        ...item,
+        phrase_category: section.key,
+        category_title: section.title
+      }))
+    );
 
     let mediaRecorder = null;
     let audioChunks = [];
@@ -304,7 +318,8 @@
 
         const phrase = getPhraseById(id);
         document.getElementById("status").textContent = `Requesting microphone for phrase ${id}...`;
-        document.getElementById("currentPhrase").textContent = `#${id} | EN: ${phrase.en} | FR: ${phrase.fr} | 中文: ${phrase.zh}`;
+        document.getElementById("currentPhrase").textContent =
+          `#${id} | ${phrase.phrase_category} | EN: ${phrase.en} | FR: ${phrase.fr} | 中文: ${phrase.zh}`;
 
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -314,7 +329,10 @@
         }
 
         audioChunks = [];
-        mediaRecorder = mimeType ? new MediaRecorder(stream, { type: mimeType }) : new MediaRecorder(stream);
+        mediaRecorder = mimeType
+          ? new MediaRecorder(stream, { mimeType: mimeType })
+          : new MediaRecorder(stream);
+
         currentPhraseId = id;
         recordingStartedAt = Date.now();
 
@@ -329,6 +347,8 @@
           document.getElementById(`row-${id}`).classList.add("recording-row");
           document.getElementById(`record-${id}`).disabled = true;
           document.getElementById(`stop-${id}`).disabled = false;
+          document.getElementById(`audio-${id}`).innerHTML =
+            `<span class="status-recording">Recording...</span>`;
           document.getElementById("status").textContent = `Recording phrase ${id}...`;
         };
 
@@ -336,7 +356,9 @@
           const mimeTypeFinal = mediaRecorder.mimeType || "audio/webm";
           const blob = new Blob(audioChunks, { type: mimeTypeFinal });
           const url = URL.createObjectURL(blob);
-          const durationSec = recordingStartedAt ? ((Date.now() - recordingStartedAt) / 1000).toFixed(2) : null;
+          const durationSec = recordingStartedAt
+            ? ((Date.now() - recordingStartedAt) / 1000).toFixed(2)
+            : null;
 
           recordings[id] = {
             blob,
@@ -365,10 +387,20 @@
           resetRowStyles();
         };
 
+        mediaRecorder.onerror = (event) => {
+          console.error("MediaRecorder error:", event);
+          document.getElementById("status").innerHTML = `<span class="status-bad">Recording error</span>`;
+          document.getElementById(`audio-${id}`).innerHTML =
+            `<span class="status-bad">Recording error</span>`;
+        };
+
         mediaRecorder.start();
       } catch (err) {
         console.error(err);
         document.getElementById("status").innerHTML = `<span class="status-bad">Could not access microphone</span>`;
+        document.getElementById(`audio-${id}`).innerHTML =
+          `<span class="status-bad">Microphone access failed</span>`;
+        alert("Microphone access failed. Please allow microphone permission in your browser.");
       }
     }
 
@@ -400,15 +432,15 @@
         const nativeLanguage = document.getElementById("nativeLanguage").value.trim() || null;
         const country = document.getElementById("country").value.trim() || null;
         const collectionBatch = document.getElementById("collectionBatch").value.trim() || null;
-        const recordingLanguage = document.getElementById("recordingLanguage").value.trim() || "English";
-        const sampleType = document.getElementById("sampleType").value.trim() || "phrase_reading";
-        const scenarioTag = document.getElementById("scenarioTag").value.trim() || "mission_phrase_collection";
 
         const phrase = getPhraseById(id);
+
         const ext = rec.mimeType.includes("webm") ? "webm" : "bin";
         const fileName = `${contributor}/phrase_${String(id).padStart(2, "0")}_${Date.now()}.${ext}`;
 
         document.getElementById("status").textContent = `Uploading phrase ${id}...`;
+        document.getElementById(`audio-${id}`).innerHTML +=
+          `<div class="small">Uploading...</div>`;
 
         const { error: uploadError } = await supabaseClient
           .storage
@@ -435,15 +467,13 @@
           audio_url: publicData.publicUrl,
           prompt_text: phrase.en,
           contributor_id: contributor,
-          sample_type: sampleType,
-          language: recordingLanguage,
+          phrase_category: phrase.phrase_category,
           native_language: nativeLanguage,
           speaker_role: speakerRole,
           country: country,
           audio_duration_sec: rec.durationSec ? Number(rec.durationSec) : null,
           collection_batch: collectionBatch,
-          device_info: navigator.userAgent,
-          scenario_tag: scenarioTag
+          device_info: navigator.userAgent
         };
 
         const { error: dbError } = await supabaseClient
