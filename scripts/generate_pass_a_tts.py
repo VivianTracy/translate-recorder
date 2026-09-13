@@ -20,6 +20,16 @@ def main():
     for phrase in phrases:
         aiff = out_dir / f"{phrase['phrase_key']}.aiff"
         wav = out_dir / f"{phrase['phrase_key']}.wav"
+        if wav.exists() and wav.stat().st_size > 4096:
+            with wave.open(str(wav), "rb") as handle:
+                duration = handle.getnframes() / handle.getframerate()
+            clips.append({
+                "phrase_key": phrase["phrase_key"],
+                "file": wav.name,
+                "duration_sec": round(duration, 2),
+            })
+            print(f"{phrase['phrase_key']:24} {duration:.2f}s (existing)")
+            continue
         subprocess.run(
             ["say", "-v", VOICE, "-r", RATE, "-o", str(aiff), phrase["en_gold"]],
             check=True,

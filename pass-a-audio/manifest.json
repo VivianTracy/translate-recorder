@@ -9,29 +9,185 @@
   "channels": 1,
   "sample_format": "pcm_s16le",
   "clips": [
-    { "phrase_key": "med.pain_where", "file": "med.pain_where.wav", "duration_sec": 0.93 },
-    { "phrase_key": "med.duration", "file": "med.duration.wav", "duration_sec": 1.34 },
-    { "phrase_key": "med.how_feel", "file": "med.how_feel.wav", "duration_sec": 1.00 },
-    { "phrase_key": "med.fever", "file": "med.fever.wav", "duration_sec": 1.07 },
-    { "phrase_key": "med.drink_water", "file": "med.drink_water.wav", "duration_sec": 0.97 },
-    { "phrase_key": "med.dose_schedule", "file": "med.dose_schedule.wav", "duration_sec": 2.36 },
-    { "phrase_key": "med.take_medicine", "file": "med.take_medicine.wav", "duration_sec": 0.86 },
-    { "phrase_key": "med.return_tomorrow", "file": "med.return_tomorrow.wav", "duration_sec": 1.03 },
-    { "phrase_key": "med.dizzy", "file": "med.dizzy.wav", "duration_sec": 1.11 },
-    { "phrase_key": "med.pain_severe", "file": "med.pain_severe.wav", "duration_sec": 1.08 },
-    { "phrase_key": "med.sit_down", "file": "med.sit_down.wav", "duration_sec": 0.88 },
-    { "phrase_key": "med.no_pain", "file": "med.no_pain.wav", "duration_sec": 1.25 },
-    { "phrase_key": "daily.hello", "file": "daily.hello.wav", "duration_sec": 1.31 },
-    { "phrase_key": "daily.fine", "file": "daily.fine.wav", "duration_sec": 0.82 },
-    { "phrase_key": "daily.name_ask", "file": "daily.name_ask.wav", "duration_sec": 0.85 },
-    { "phrase_key": "daily.name_awa", "file": "daily.name_awa.wav", "duration_sec": 0.99 },
-    { "phrase_key": "daily.thanks", "file": "daily.thanks.wav", "duration_sec": 0.64 },
-    { "phrase_key": "daily.see_you", "file": "daily.see_you.wav", "duration_sec": 0.56 },
-    { "phrase_key": "daily.hospital", "file": "daily.hospital.wav", "duration_sec": 1.12 },
-    { "phrase_key": "daily.wait", "file": "daily.wait.wav", "duration_sec": 1.04 },
-    { "phrase_key": "repair.repeat", "file": "repair.repeat.wav", "duration_sec": 2.62 },
-    { "phrase_key": "daily.child_age", "file": "daily.child_age.wav", "duration_sec": 1.71 },
-    { "phrase_key": "gospel.pray_we", "file": "gospel.pray_we.wav", "duration_sec": 0.98 },
-    { "phrase_key": "gospel.love_and_pray", "file": "gospel.love_and_pray.wav", "duration_sec": 2.01 }
+    {
+      "phrase_key": "med.pain_where",
+      "file": "med.pain_where.wav",
+      "duration_sec": 0.93
+    },
+    {
+      "phrase_key": "med.duration",
+      "file": "med.duration.wav",
+      "duration_sec": 1.34
+    },
+    {
+      "phrase_key": "med.how_feel",
+      "file": "med.how_feel.wav",
+      "duration_sec": 1.0
+    },
+    {
+      "phrase_key": "med.fever",
+      "file": "med.fever.wav",
+      "duration_sec": 1.07
+    },
+    {
+      "phrase_key": "med.drink_water",
+      "file": "med.drink_water.wav",
+      "duration_sec": 0.97
+    },
+    {
+      "phrase_key": "med.dose_schedule",
+      "file": "med.dose_schedule.wav",
+      "duration_sec": 2.36
+    },
+    {
+      "phrase_key": "med.take_medicine",
+      "file": "med.take_medicine.wav",
+      "duration_sec": 0.86
+    },
+    {
+      "phrase_key": "med.return_tomorrow",
+      "file": "med.return_tomorrow.wav",
+      "duration_sec": 1.03
+    },
+    {
+      "phrase_key": "med.dizzy",
+      "file": "med.dizzy.wav",
+      "duration_sec": 1.11
+    },
+    {
+      "phrase_key": "med.pain_severe",
+      "file": "med.pain_severe.wav",
+      "duration_sec": 1.08
+    },
+    {
+      "phrase_key": "med.sit_down",
+      "file": "med.sit_down.wav",
+      "duration_sec": 0.88
+    },
+    {
+      "phrase_key": "med.no_pain",
+      "file": "med.no_pain.wav",
+      "duration_sec": 1.25
+    },
+    {
+      "phrase_key": "daily.hello",
+      "file": "daily.hello.wav",
+      "duration_sec": 1.31
+    },
+    {
+      "phrase_key": "daily.fine",
+      "file": "daily.fine.wav",
+      "duration_sec": 0.82
+    },
+    {
+      "phrase_key": "daily.name_ask",
+      "file": "daily.name_ask.wav",
+      "duration_sec": 0.85
+    },
+    {
+      "phrase_key": "daily.name_awa",
+      "file": "daily.name_awa.wav",
+      "duration_sec": 0.99
+    },
+    {
+      "phrase_key": "daily.thanks",
+      "file": "daily.thanks.wav",
+      "duration_sec": 0.64
+    },
+    {
+      "phrase_key": "daily.see_you",
+      "file": "daily.see_you.wav",
+      "duration_sec": 0.56
+    },
+    {
+      "phrase_key": "daily.hospital",
+      "file": "daily.hospital.wav",
+      "duration_sec": 1.12
+    },
+    {
+      "phrase_key": "daily.wait",
+      "file": "daily.wait.wav",
+      "duration_sec": 1.04
+    },
+    {
+      "phrase_key": "repair.repeat",
+      "file": "repair.repeat.wav",
+      "duration_sec": 2.62
+    },
+    {
+      "phrase_key": "daily.child_age",
+      "file": "daily.child_age.wav",
+      "duration_sec": 1.71
+    },
+    {
+      "phrase_key": "gospel.pray_we",
+      "file": "gospel.pray_we.wav",
+      "duration_sec": 0.98
+    },
+    {
+      "phrase_key": "gospel.love_and_pray",
+      "file": "gospel.love_and_pray.wav",
+      "duration_sec": 2.01
+    },
+    {
+      "phrase_key": "para.symptom_story",
+      "file": "para.symptom_story.wav",
+      "duration_sec": 24.84
+    },
+    {
+      "phrase_key": "para.child_fever",
+      "file": "para.child_fever.wav",
+      "duration_sec": 25.23
+    },
+    {
+      "phrase_key": "para.dose_explain",
+      "file": "para.dose_explain.wav",
+      "duration_sec": 29.35
+    },
+    {
+      "phrase_key": "para.clinic_directions",
+      "file": "para.clinic_directions.wav",
+      "duration_sec": 25.48
+    },
+    {
+      "phrase_key": "para.visit_intro",
+      "file": "para.visit_intro.wav",
+      "duration_sec": 21.49
+    },
+    {
+      "phrase_key": "para.follow_up",
+      "file": "para.follow_up.wav",
+      "duration_sec": 22.93
+    },
+    {
+      "phrase_key": "para.repair_slow",
+      "file": "para.repair_slow.wav",
+      "duration_sec": 21.43
+    },
+    {
+      "phrase_key": "para.pain_history",
+      "file": "para.pain_history.wav",
+      "duration_sec": 25.18
+    },
+    {
+      "phrase_key": "para.family_visit",
+      "file": "para.family_visit.wav",
+      "duration_sec": 22.16
+    },
+    {
+      "phrase_key": "para.gospel_hope",
+      "file": "para.gospel_hope.wav",
+      "duration_sec": 24.27
+    },
+    {
+      "phrase_key": "para.if_worse",
+      "file": "para.if_worse.wav",
+      "duration_sec": 23.22
+    },
+    {
+      "phrase_key": "para.thank_next",
+      "file": "para.thank_next.wav",
+      "duration_sec": 17.64
+    }
   ]
 }

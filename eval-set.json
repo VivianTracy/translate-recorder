@@ -4,8 +4,14 @@
   "frozen_at": "2026-09-13",
   "purpose": "Scorable two-way speech-translation eval for the offline English ↔ Wolof clinic/mission translator. Not a training corpus.",
   "languages": {
-    "gold": ["en", "wo"],
-    "cues_only": ["fr", "zh"]
+    "gold": [
+      "en",
+      "wo"
+    ],
+    "cues_only": [
+      "fr",
+      "zh"
+    ]
   },
   "gold_policy": "English is frozen gold. Wolof gold must be written by a native speaker on this exact wording. Do not fill wo_gold from a model. French and Chinese are cue cards for contributors, not MT references.",
   "recording_protocol": {
@@ -13,40 +19,60 @@
       "spoken_language": "en",
       "who": "TTS (macos_say / Samantha), stored as contributor tts_en_v1",
       "reads": "en_gold, exactly as written",
-      "scores": ["EN→WO speech translation", "Wolof TTS listenability"]
+      "scores": [
+        "EN→WO speech translation",
+        "Wolof TTS listenability"
+      ]
     },
     "pass_b": {
       "spoken_language": "wo",
       "who": "At least two native Wolof speakers",
       "reads": "wo_gold, exactly as written, after gold is filled",
-      "scores": ["WO ASR", "WO→EN translation", "English TTS listenability"]
+      "scores": [
+        "WO ASR",
+        "WO→EN translation",
+        "English TTS listenability"
+      ]
     },
     "take_rules": [
       "Pass A is generated and uploaded to Supabase; do not recruit English speakers",
       "Quiet room for Pass B, phone 20–30 cm from the mouth",
       "One phrase per take",
       "Mark take_quality keep / redo / noisy",
-      "Target 24 TTS English clips plus ~24–48 Wolof clips"
+      "Target 36 TTS English clips plus Wolof gold and Pass B for the subset you can collect"
     ]
   },
   "scoring": {
     "pass_a": {
       "hypothesis": "pipeline Wolof text",
       "reference": "wo_gold",
-      "metrics": ["BLEU", "chrF", "human 1–5 meaning"]
+      "metrics": [
+        "BLEU",
+        "chrF",
+        "human 1–5 meaning"
+      ]
     },
     "pass_b_asr": {
       "hypothesis": "pipeline Wolof transcript",
       "reference": "wo_gold",
-      "metrics": ["WER", "CER"]
+      "metrics": [
+        "WER",
+        "CER"
+      ]
     },
     "pass_b_mt": {
       "hypothesis": "pipeline English text",
       "reference": "en_gold",
-      "metrics": ["BLEU", "chrF", "human 1–5 meaning"]
+      "metrics": [
+        "BLEU",
+        "chrF",
+        "human 1–5 meaning"
+      ]
     },
     "tts": {
-      "metrics": ["human 1–5 listenability"]
+      "metrics": [
+        "human 1–5 listenability"
+      ]
     }
   },
   "export_manifest_fields": [
@@ -64,9 +90,19 @@
     "audio_path"
   ],
   "coverage": {
-    "phrase_count": 24,
-    "length": { "short": 20, "medium": 4 },
-    "categories": { "medical": 12, "daily": 9, "repair": 1, "gospel": 2 },
+    "phrase_count": 36,
+    "length": {
+      "short": 20,
+      "medium": 4,
+      "paragraph": 12
+    },
+    "categories": {
+      "medical": 12,
+      "daily": 9,
+      "repair": 1,
+      "gospel": 2,
+      "paragraph": 12
+    },
     "phenomena": [
       "question",
       "command",
@@ -79,7 +115,9 @@
       "kinship",
       "repair",
       "two_sentence",
-      "pronoun"
+      "pronoun",
+      "conditional",
+      "paragraph"
     ]
   },
   "phrases": [
@@ -88,7 +126,9 @@
       "phrase_key": "med.pain_where",
       "category": "medical",
       "length": "short",
-      "phenomena": ["question"],
+      "phenomena": [
+        "question"
+      ],
       "en_gold": "Where does it hurt?",
       "wo_gold": "",
       "fr_cue": "Où avez-vous mal ?",
@@ -101,7 +141,10 @@
       "phrase_key": "med.duration",
       "category": "medical",
       "length": "short",
-      "phenomena": ["question", "time"],
+      "phenomena": [
+        "question",
+        "time"
+      ],
       "en_gold": "How long have you had this?",
       "wo_gold": "",
       "fr_cue": "Depuis combien de temps avez-vous cela ?",
@@ -114,7 +157,9 @@
       "phrase_key": "med.how_feel",
       "category": "medical",
       "length": "short",
-      "phenomena": ["question"],
+      "phenomena": [
+        "question"
+      ],
       "en_gold": "How do you feel?",
       "wo_gold": "",
       "fr_cue": "Comment vous sentez-vous ?",
@@ -126,7 +171,9 @@
       "phrase_key": "med.fever",
       "category": "medical",
       "length": "short",
-      "phenomena": ["yes_no"],
+      "phenomena": [
+        "yes_no"
+      ],
       "en_gold": "Do you have a fever?",
       "wo_gold": "",
       "fr_cue": "Avez-vous de la fièvre ?",
@@ -138,7 +185,9 @@
       "phrase_key": "med.drink_water",
       "category": "medical",
       "length": "short",
-      "phenomena": ["command"],
+      "phenomena": [
+        "command"
+      ],
       "en_gold": "Please drink water.",
       "wo_gold": "",
       "fr_cue": "Buvez de l'eau, s'il vous plaît.",
@@ -150,7 +199,11 @@
       "phrase_key": "med.dose_schedule",
       "category": "medical",
       "length": "medium",
-      "phenomena": ["command", "number", "time"],
+      "phenomena": [
+        "command",
+        "number",
+        "time"
+      ],
       "en_gold": "Take two tablets in the morning and two at night.",
       "wo_gold": "",
       "fr_cue": "Prenez deux comprimés le matin et deux le soir.",
@@ -163,7 +216,9 @@
       "phrase_key": "med.take_medicine",
       "category": "medical",
       "length": "short",
-      "phenomena": ["command"],
+      "phenomena": [
+        "command"
+      ],
       "en_gold": "Take medicine.",
       "wo_gold": "",
       "fr_cue": "Prenez le médicament.",
@@ -175,7 +230,10 @@
       "phrase_key": "med.return_tomorrow",
       "category": "medical",
       "length": "short",
-      "phenomena": ["command", "time"],
+      "phenomena": [
+        "command",
+        "time"
+      ],
       "en_gold": "Come back tomorrow.",
       "wo_gold": "",
       "fr_cue": "Revenez demain.",
@@ -187,7 +245,9 @@
       "phrase_key": "med.dizzy",
       "category": "medical",
       "length": "short",
-      "phenomena": ["yes_no"],
+      "phenomena": [
+        "yes_no"
+      ],
       "en_gold": "Do you feel dizzy?",
       "wo_gold": "",
       "fr_cue": "Avez-vous des vertiges ?",
@@ -200,7 +260,9 @@
       "phrase_key": "med.pain_severe",
       "category": "medical",
       "length": "short",
-      "phenomena": ["yes_no"],
+      "phenomena": [
+        "yes_no"
+      ],
       "en_gold": "Is the pain severe?",
       "wo_gold": "",
       "fr_cue": "La douleur est-elle forte ?",
@@ -213,7 +275,9 @@
       "phrase_key": "med.sit_down",
       "category": "medical",
       "length": "short",
-      "phenomena": ["command"],
+      "phenomena": [
+        "command"
+      ],
       "en_gold": "Please sit down.",
       "wo_gold": "",
       "fr_cue": "Asseyez-vous, s'il vous plaît.",
@@ -226,7 +290,9 @@
       "phrase_key": "med.no_pain",
       "category": "medical",
       "length": "short",
-      "phenomena": ["negation"],
+      "phenomena": [
+        "negation"
+      ],
       "en_gold": "I do not have pain.",
       "wo_gold": "",
       "fr_cue": "Je n'ai pas mal.",
@@ -239,7 +305,9 @@
       "phrase_key": "daily.hello",
       "category": "daily",
       "length": "short",
-      "phenomena": ["question"],
+      "phenomena": [
+        "question"
+      ],
       "en_gold": "Hello, how are you?",
       "wo_gold": "",
       "fr_cue": "Bonjour, comment allez-vous ?",
@@ -264,7 +332,10 @@
       "phrase_key": "daily.name_ask",
       "category": "daily",
       "length": "short",
-      "phenomena": ["question", "name"],
+      "phenomena": [
+        "question",
+        "name"
+      ],
       "en_gold": "What is your name?",
       "wo_gold": "",
       "fr_cue": "Comment vous appelez-vous ?",
@@ -276,7 +347,9 @@
       "phrase_key": "daily.name_awa",
       "category": "daily",
       "length": "short",
-      "phenomena": ["name"],
+      "phenomena": [
+        "name"
+      ],
       "en_gold": "My name is Awa.",
       "wo_gold": "",
       "fr_cue": "Je m'appelle Awa.",
@@ -313,7 +386,10 @@
       "phrase_key": "daily.hospital",
       "category": "daily",
       "length": "short",
-      "phenomena": ["question", "location"],
+      "phenomena": [
+        "question",
+        "location"
+      ],
       "en_gold": "Where is the hospital?",
       "wo_gold": "",
       "fr_cue": "Où est l'hôpital ?",
@@ -325,7 +401,9 @@
       "phrase_key": "daily.wait",
       "category": "daily",
       "length": "short",
-      "phenomena": ["command"],
+      "phenomena": [
+        "command"
+      ],
       "en_gold": "Please wait a moment.",
       "wo_gold": "",
       "fr_cue": "Attendez un moment, s'il vous plaît.",
@@ -338,7 +416,11 @@
       "phrase_key": "repair.repeat",
       "category": "repair",
       "length": "medium",
-      "phenomena": ["negation", "repair", "two_sentence"],
+      "phenomena": [
+        "negation",
+        "repair",
+        "two_sentence"
+      ],
       "en_gold": "I do not understand. Please say that again.",
       "wo_gold": "",
       "fr_cue": "Je ne comprends pas. Répétez, s'il vous plaît.",
@@ -351,7 +433,10 @@
       "phrase_key": "daily.child_age",
       "category": "daily",
       "length": "medium",
-      "phenomena": ["number", "kinship"],
+      "phenomena": [
+        "number",
+        "kinship"
+      ],
       "en_gold": "The child is five years old.",
       "wo_gold": "",
       "fr_cue": "L'enfant a cinq ans.",
@@ -363,7 +448,9 @@
       "phrase_key": "gospel.pray_we",
       "category": "gospel",
       "length": "short",
-      "phenomena": ["pronoun"],
+      "phenomena": [
+        "pronoun"
+      ],
       "en_gold": "We will pray for you.",
       "wo_gold": "",
       "fr_cue": "Nous prierons pour vous.",
@@ -376,13 +463,228 @@
       "phrase_key": "gospel.love_and_pray",
       "category": "gospel",
       "length": "medium",
-      "phenomena": ["two_sentence", "pronoun"],
+      "phenomena": [
+        "two_sentence",
+        "pronoun"
+      ],
       "en_gold": "God loves you. We will pray for you.",
       "wo_gold": "",
       "fr_cue": "Dieu vous aime. Nous prierons pour vous.",
       "zh_cue": "神爱你。我们会为你祷告。",
       "source": "add",
       "notes": "One medium gospel turn instead of four micro-lines (old 17–20)."
+    },
+    {
+      "phrase_id": 125,
+      "phrase_key": "para.symptom_story",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "time",
+        "negation",
+        "kinship",
+        "question"
+      ],
+      "en_gold": "I have not felt well since last Thursday. The pain started in my stomach and then moved to my back. I do not have a fever, but I feel weak when I stand up. I have not been able to eat much, and water is the only thing I can keep down. Last night I could not sleep because the pain was worse. This morning I walked here with my sister because I cannot ride a bicycle. I have not taken any medicine yet. Can you tell me what I should do now?",
+      "wo_gold": "",
+      "fr_cue": "Je ne me sens pas bien depuis jeudi dernier. La douleur a commencé dans mon ventre, puis elle est passée dans mon dos. Je n'ai pas de fièvre, mais je me sens faible quand je me lève. Je n'arrive presque plus à manger, et je ne garde que l'eau. La nuit dernière, je n'ai pas pu dormir parce que la douleur était plus forte. Ce matin, je suis venue à pied avec ma sœur, parce que je ne peux pas faire du vélo. Je n'ai encore pris aucun médicament. Pouvez-vous me dire ce que je dois faire maintenant ?",
+      "zh_cue": "从上周四开始我就觉得不舒服。疼痛先从肚子开始，后来转到了后背。我不发烧，但是站起来会觉得没力气。我几乎吃不下东西，只能喝一点水。昨晚因为更疼，我睡不着。今天早上我和姐姐走过来，因为我骑不了自行车。我还没有吃药。你能告诉我现在该怎么办吗？",
+      "source": "add",
+      "notes": "8-sentence patient history: duration, location, negation, kinship."
+    },
+    {
+      "phrase_id": 126,
+      "phrase_key": "para.child_fever",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "kinship",
+        "number",
+        "time",
+        "negation",
+        "question"
+      ],
+      "en_gold": "This is my son, and he is five years old. He has had a fever for three days, and last night it was very high. He does not want to eat, but he will drink a little water if I sit with him. He said his head hurts, and he has been crying more than usual. He is not dizzy, but he feels very tired. We do not have medicine at home. I brought him here this morning because he did not get better. What should I give him, and should we come back tomorrow?",
+      "wo_gold": "",
+      "fr_cue": "Voici mon fils, il a cinq ans. Il a de la fièvre depuis trois jours, et cette nuit elle était très haute. Il ne veut pas manger, mais il boit un peu d'eau si je reste près de lui. Il dit que sa tête lui fait mal, et il pleure plus que d'habitude. Il n'a pas de vertiges, mais il est très fatigué. Nous n'avons pas de médicament à la maison. Je l'ai amené ce matin parce qu'il n'allait pas mieux. Qu'est-ce que je dois lui donner, et faut-il revenir demain ?",
+      "zh_cue": "这是我的儿子，他五岁。他发烧三天了，昨晚烧得很高。他不想吃东西，但如果我陪着他，他会喝一点水。他说头疼，也比平时哭得更多。他不头晕，但是很累。家里没有药。今天早上我带他来，是因为他没有好转。我该给他什么，我们明天还要再来吗？",
+      "source": "add",
+      "notes": "8-sentence caregiver report with age, fever duration, and follow-up question."
+    },
+    {
+      "phrase_id": 127,
+      "phrase_key": "para.dose_explain",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "command",
+        "number",
+        "time",
+        "negation",
+        "conditional"
+      ],
+      "en_gold": "Please sit down and listen carefully, because this medicine must be taken the right way. Give him two tablets in the morning after food, and two tablets at night before he sleeps. Do not give more than four tablets in one day, even if he still feels sick. He must drink water each time he takes the medicine. If he vomits within one hour, do not give another tablet until you ask us. If the fever is not lower in two days, come back to this clinic. Keep the medicine in a cool place, and do not let the other children take it.",
+      "wo_gold": "",
+      "fr_cue": "Asseyez-vous et écoutez bien, parce que ce médicament doit être pris correctement. Donnez-lui deux comprimés le matin après le repas, et deux comprimés le soir avant qu'il dorme. Ne donnez pas plus de quatre comprimés dans la même journée, même s'il se sent encore malade. Il doit boire de l'eau chaque fois qu'il prend le médicament. S'il vomit dans l'heure, n'en donnez pas un autre avant de nous demander. Si la fièvre n'a pas baissé en deux jours, revenez à cette clinique. Gardez le médicament dans un endroit frais, et ne le laissez pas aux autres enfants.",
+      "zh_cue": "请坐下仔细听，因为这个药必须按正确的方法吃。早上饭后给他两片，晚上睡觉前再给他两片。一天不要超过四片，就算他还觉得不舒服也不要多给。每次吃药都要喝水。如果他在一小时内吐了，先不要再给一片，先来问我们。如果两天后烧还没有退，再回到这个诊所。药要放在阴凉的地方，不要让别的孩子拿去吃。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 128,
+      "phrase_key": "para.clinic_directions",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "location",
+        "command",
+        "time",
+        "negation",
+        "conditional"
+      ],
+      "en_gold": "The hospital is not far, but it is easy to miss if you turn too early. Walk straight past the market until you see the big blue gate on your left. If you reach the mosque, you have gone too far, so turn around and look again. The clinic door is behind the gate, next to the tree where people wait. You should arrive before noon, because we do not see new patients after that. If you cannot walk, ask someone to bring you, and we will wait if we know you are coming.",
+      "wo_gold": "",
+      "fr_cue": "L'hôpital n'est pas loin, mais on peut le manquer si on tourne trop tôt. Marchez tout droit après le marché jusqu'à la grande porte bleue à gauche. Si vous arrivez à la mosquée, vous êtes allé trop loin, alors revenez et regardez encore. La porte de la clinique est derrière la grille, près de l'arbre où les gens attendent. Il faut arriver avant midi, parce que nous ne recevons plus de nouveaux patients après. Si vous ne pouvez pas marcher, demandez à quelqu'un de vous amener, et nous attendrons si nous savons que vous venez.",
+      "zh_cue": "医院不远，但是如果转弯太早，很容易走过。一直走过市场，直到左边看到那扇蓝色的大门。如果你走到清真寺，那就走过了，要转回来再找。诊所的门在大门后面，就在大家等着的那棵树旁边。你要在中午以前到，因为过了那个时间我们不再看新的病人。如果你走不动，就请人送你来；如果我们知道你在路上，会等你。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 129,
+      "phrase_key": "para.visit_intro",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "name",
+        "question",
+        "conditional",
+        "gospel"
+      ],
+      "en_gold": "Hello, my name is Awa, and I am here with the clinic team. We came to see how you are and to ask if anyone in the house is sick. We do not want to stay long if this is a bad time. If you are willing, we can sit outside and talk for a few minutes. We have water and simple medicine if someone has a fever or pain. When we finish, we can pray for your family if you would like us to.",
+      "wo_gold": "",
+      "fr_cue": "Bonjour, je m'appelle Awa, et je suis avec l'équipe de la clinique. Nous sommes venus voir comment vous allez et demander si quelqu'un dans la maison est malade. Nous ne voulons pas rester longtemps si ce n'est pas le moment. Si vous êtes d'accord, nous pouvons nous asseoir dehors et parler quelques minutes. Nous avons de l'eau et un médicament simple si quelqu'un a de la fièvre ou mal. Quand nous aurons fini, nous pourrons prier pour votre famille si vous le souhaitez.",
+      "zh_cue": "你好，我叫阿娃，我和诊所的团队一起来。我们来看看你们怎么样，也想问家里有没有人生病。如果现在不方便，我们不会待很久。如果你们愿意，我们可以在外面坐几分钟说说话。如果有人发烧或疼痛，我们带了水和简单的药。谈完以后，如果你们愿意，我们可以为你们一家祷告。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 130,
+      "phrase_key": "para.follow_up",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "command",
+        "time",
+        "negation",
+        "conditional",
+        "name",
+        "pronoun"
+      ],
+      "en_gold": "You may go home now, but you should rest today and tomorrow. Drink water often, even if you do not feel thirsty. Do not work in the sun until the dizziness is gone. If the pain becomes severe tonight, do not wait until morning. Come back here, or go to the hospital if we are closed. I will write your name down so we remember you when you return. We will pray for you, and we hope you feel stronger soon.",
+      "wo_gold": "",
+      "fr_cue": "Vous pouvez rentrer maintenant, mais vous devez vous reposer aujourd'hui et demain. Buvez de l'eau souvent, même si vous n'avez pas soif. Ne travaillez pas au soleil tant que les vertiges n'ont pas disparu. Si la douleur devient forte cette nuit, n'attendez pas le matin. Revenez ici, ou allez à l'hôpital si nous sommes fermés. Je vais écrire votre nom pour que nous nous souvenions de vous. Nous prierons pour vous, et nous espérons que vous serez plus fort bientôt.",
+      "zh_cue": "你现在可以回家，但是今天和明天都要休息。即使不觉得渴，也要常常喝水。头晕还没有好之前，不要在太阳下面干活。如果今晚疼得很厉害，不要等到早上。回到这里来，如果我们关门了，就去医院。我会记下你的名字，等你回来我们认得出你。我们会为你祷告，也希望你很快更有力气。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 131,
+      "phrase_key": "para.repair_slow",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "repair",
+        "negation",
+        "command",
+        "conditional"
+      ],
+      "en_gold": "I am sorry, I do not understand what you just said. Please say that again, but more slowly, one sentence at a time. If a word is hard, you can show me with your hand or point. I do not speak Wolof well, so I may ask you to repeat it twice. When I understand, I will say it back to you to make sure it is right. Thank you for being patient with me while we talk.",
+      "wo_gold": "",
+      "fr_cue": "Excusez-moi, je n'ai pas compris ce que vous venez de dire. Répétez, s'il vous plaît, mais plus lentement, une phrase à la fois. Si un mot est difficile, vous pouvez me le montrer avec la main. Je ne parle pas bien le wolof, alors je peux vous demander de répéter deux fois. Quand j'aurai compris, je vais le redire pour vérifier. Merci d'être patient pendant que nous parlons.",
+      "zh_cue": "对不起，我没有听懂你刚才说的话。请再说一遍，说慢一点，一次一句。如果有个词很难，你可以用手比划或指给我看。我的沃洛夫语不好，所以我可能会请你再说两次。等我听懂了，我会再说给你听，确认我说对了。谢谢你在我们说话的时候这么有耐心。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 132,
+      "phrase_key": "para.pain_history",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "location",
+        "time",
+        "negation",
+        "question"
+      ],
+      "en_gold": "The pain is on the right side, just below my ribs. It is not there all day, but it comes when I walk or when I eat. It started about two weeks ago, after I carried a heavy bag. I do not feel dizzy, and I do not think I have a fever. At night the pain is worse if I lie on that side. I have tried to rest, but I still have to work. I have not seen a doctor before this. Is this something that will get better, or do I need medicine?",
+      "wo_gold": "",
+      "fr_cue": "La douleur est du côté droit, juste sous les côtes. Elle n'est pas là toute la journée, mais elle vient quand je marche ou quand je mange. Ça a commencé il y a environ deux semaines, après que j'ai porté un sac lourd. Je n'ai pas de vertiges, et je ne pense pas avoir de fièvre. La nuit, la douleur est plus forte si je me couche de ce côté. J'ai essayé de me reposer, mais je dois encore travailler. Je n'ai jamais vu de médecin avant aujourd'hui. Est-ce que ça va s'améliorer, ou est-ce que j'ai besoin d'un médicament ?",
+      "zh_cue": "疼的地方在右边，就在肋骨下面。不是一整天都疼，走路或吃饭的时候才会疼。大概两周前开始的，是我搬了一个很重的袋子以后。我不头晕，也觉得自己没有发烧。晚上如果朝那边躺，会更疼。我试过休息，可是还是得干活。在这之前我没有看过医生。这会自己好起来，还是我需要吃药？",
+      "source": "add"
+    },
+    {
+      "phrase_id": 133,
+      "phrase_key": "para.family_visit",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "question",
+        "time",
+        "conditional",
+        "kinship"
+      ],
+      "en_gold": "Peace to this house. We are glad we found you at home this afternoon. How is everyone here, and has the child been well since last week? We brought a little water and we wanted to ask about the cough you mentioned. If it is better, that is good news, and we will not stay long. If it is worse, we can walk with you to the clinic in the morning. Before we leave, we would like to thank you and pray for peace in your home.",
+      "wo_gold": "",
+      "fr_cue": "Paix à cette maison. Nous sommes contents de vous trouver à la maison cet après-midi. Comment va tout le monde ici, et l'enfant va-t-il mieux depuis la semaine dernière ? Nous avons apporté un peu d'eau et nous voulions demander des nouvelles de la toux dont vous avez parlé. Si c'est mieux, c'est une bonne nouvelle, et nous ne resterons pas longtemps. Si c'est pire, nous pouvons marcher avec vous jusqu'à la clinique demain matin. Avant de partir, nous voulons vous remercier et prier pour la paix dans votre maison.",
+      "zh_cue": "愿这一家平安。今天下午能在家里找到你们，我们很高兴。家里大家都好吗，从上个星期到现在，孩子还好吗？我们带了一点水，也想问问你说过的咳嗽。如果好一些了，那是好事，我们不会待很久。如果更重了，早上我们可以和你们一起走到诊所。离开以前，我们想谢谢你们，也为你们家里的平安祷告。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 134,
+      "phrase_key": "para.gospel_hope",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "gospel",
+        "pronoun",
+        "conditional",
+        "kinship"
+      ],
+      "en_gold": "God loves you, and that is why we came to sit with you today. We do not have every answer about the sickness, but we believe God is good even when we are afraid. Jesus came for people who are tired and for people who need help. We will pray for you and for the child, and we will ask God to give you rest. If you want, we can come back another day and talk more. You do not have to decide anything now. Thank you for welcoming us into your home.",
+      "wo_gold": "",
+      "fr_cue": "Dieu vous aime, et c'est pour cela que nous sommes venus nous asseoir avec vous aujourd'hui. Nous n'avons pas toutes les réponses sur la maladie, mais nous croyons que Dieu est bon même quand nous avons peur. Jésus est venu pour les personnes fatiguées et pour celles qui ont besoin d'aide. Nous prierons pour vous et pour l'enfant, et nous demanderons à Dieu de vous donner du repos. Si vous voulez, nous pourrons revenir un autre jour pour parler davantage. Vous n'avez rien à décider maintenant. Merci de nous avoir accueillis dans votre maison.",
+      "zh_cue": "神爱你，所以我们今天来和你坐在一起。关于这场病，我们没有全部的答案，但我们相信即使害怕的时候，神仍是好的。耶稣来，是为着疲倦的人，也是为着需要帮助的人。我们会为你和孩子祷告，求神给你安息。如果你愿意，我们另一天可以再来多谈一些。你现在不必作任何决定。谢谢你接待我们到家里来。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 135,
+      "phrase_key": "para.if_worse",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "conditional",
+        "negation",
+        "time",
+        "command",
+        "name"
+      ],
+      "en_gold": "If you feel better tomorrow, you do not need to come back. If you feel worse, or if you cannot drink water, come here as soon as you can. Do not take medicine from a neighbor unless we have told you it is the same kind. Do not give the child's tablets to an adult, because the dose is not the same. Write down what time the fever started, so you can tell us. We will be here in the morning, and we will look for your name.",
+      "wo_gold": "",
+      "fr_cue": "Si vous allez mieux demain, vous n'avez pas besoin de revenir. Si vous allez plus mal, ou si vous ne pouvez plus boire d'eau, venez ici le plus tôt possible. Ne prenez pas un médicament chez un voisin, sauf si nous avons dit que c'est le même. Ne donnez pas les comprimés de l'enfant à un adulte, parce que la dose n'est pas la même. Notez l'heure où la fièvre a commencé, pour pouvoir nous le dire. Nous serons ici demain matin, et nous chercherons votre nom.",
+      "zh_cue": "如果明天你好一些了，就不必再来。如果更不舒服，或者喝不下水，就尽快到这里来。不要吃邻居给的药，除非我们说过那是同一种。不要把孩子的药片给大人吃，因为剂量不一样。把开始发烧的时间写下来，好告诉我们。我们早上会在这里，也会找你的名字。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 136,
+      "phrase_key": "para.thank_next",
+      "category": "paragraph",
+      "length": "paragraph",
+      "phenomena": [
+        "time",
+        "name",
+        "conditional",
+        "gospel"
+      ],
+      "en_gold": "Thank you for waiting and for answering our questions. We know it was a long morning, and you were patient with us. Take this paper with you, because it has the time you should return. If you lose it, just come and say your name is Awa. We hope the pain is less tonight. See you soon, and may God keep you as you go home.",
+      "wo_gold": "",
+      "fr_cue": "Merci d'avoir attendu et d'avoir répondu à nos questions. Nous savons que la matinée a été longue, et vous avez été patients. Emportez ce papier, parce qu'il indique l'heure à laquelle vous devez revenir. Si vous le perdez, venez simplement et dites que vous vous appelez Awa. Nous espérons que la douleur sera moins forte ce soir. À bientôt, et que Dieu vous garde sur le chemin du retour.",
+      "zh_cue": "谢谢你们等候，也谢谢你们回答我们的问题。我们知道这一上午很长，你们很有耐心。请把这张纸带走，上面写着你们该回来的时间。如果纸丢了，就过来告诉我们，你的名字是阿娃。希望今晚会不那么疼。再见，愿神在你回家的路上保守你。",
+      "source": "add"
     }
   ]
 }
