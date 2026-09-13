@@ -1,0 +1,388 @@
+{
+  "eval_set_id": "aco_mission_eval_v1",
+  "title": "ACO mission English ↔ Wolof eval v1",
+  "frozen_at": "2026-09-13",
+  "purpose": "Scorable two-way speech-translation eval for the offline English ↔ Wolof clinic/mission translator. Not a training corpus.",
+  "languages": {
+    "gold": ["en", "wo"],
+    "cues_only": ["fr", "zh"]
+  },
+  "gold_policy": "English is frozen gold. Wolof gold must be written by a native speaker on this exact wording. Do not fill wo_gold from a model. French and Chinese are cue cards for contributors, not MT references.",
+  "recording_protocol": {
+    "pass_a": {
+      "spoken_language": "en",
+      "who": "At least two native English speakers",
+      "reads": "en_gold, exactly as written",
+      "scores": ["EN→WO speech translation", "Wolof TTS listenability"]
+    },
+    "pass_b": {
+      "spoken_language": "wo",
+      "who": "At least two native Wolof speakers",
+      "reads": "wo_gold, exactly as written, after gold is filled",
+      "scores": ["WO ASR", "WO→EN translation", "English TTS listenability"]
+    },
+    "take_rules": [
+      "Quiet room, phone 20–30 cm from the mouth",
+      "One phrase per take",
+      "Set spoken_language and native_language before the first record",
+      "Mark take_quality keep / redo / noisy",
+      "Target ~48–60 clips (2 speakers × 2 passes × 24 phrases, dropping obvious redos)"
+    ]
+  },
+  "scoring": {
+    "pass_a": {
+      "hypothesis": "pipeline Wolof text",
+      "reference": "wo_gold",
+      "metrics": ["BLEU", "chrF", "human 1–5 meaning"]
+    },
+    "pass_b_asr": {
+      "hypothesis": "pipeline Wolof transcript",
+      "reference": "wo_gold",
+      "metrics": ["WER", "CER"]
+    },
+    "pass_b_mt": {
+      "hypothesis": "pipeline English text",
+      "reference": "en_gold",
+      "metrics": ["BLEU", "chrF", "human 1–5 meaning"]
+    },
+    "tts": {
+      "metrics": ["human 1–5 listenability"]
+    }
+  },
+  "export_manifest_fields": [
+    "eval_set_id",
+    "phrase_id",
+    "phrase_key",
+    "spoken_language",
+    "recording_pass",
+    "gold_text",
+    "gold_translation",
+    "speaker_id",
+    "native_language",
+    "take_quality",
+    "duration_sec",
+    "audio_path"
+  ],
+  "coverage": {
+    "phrase_count": 24,
+    "length": { "short": 20, "medium": 4 },
+    "categories": { "medical": 12, "daily": 9, "repair": 1, "gospel": 2 },
+    "phenomena": [
+      "question",
+      "command",
+      "yes_no",
+      "number",
+      "time",
+      "negation",
+      "location",
+      "name",
+      "kinship",
+      "repair",
+      "two_sentence",
+      "pronoun"
+    ]
+  },
+  "phrases": [
+    {
+      "phrase_id": 101,
+      "phrase_key": "med.pain_where",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["question"],
+      "en_gold": "Where does it hurt?",
+      "wo_gold": "",
+      "fr_cue": "Où avez-vous mal ?",
+      "zh_cue": "哪里不舒服？",
+      "source": "keep",
+      "notes": "Core clinic question."
+    },
+    {
+      "phrase_id": 102,
+      "phrase_key": "med.duration",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["question", "time"],
+      "en_gold": "How long have you had this?",
+      "wo_gold": "",
+      "fr_cue": "Depuis combien de temps avez-vous cela ?",
+      "zh_cue": "这个情况多久了？",
+      "source": "keep",
+      "notes": "Duration. French on the old page was abbreviated."
+    },
+    {
+      "phrase_id": 103,
+      "phrase_key": "med.how_feel",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["question"],
+      "en_gold": "How do you feel?",
+      "wo_gold": "",
+      "fr_cue": "Comment vous sentez-vous ?",
+      "zh_cue": "感觉怎么样？",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 104,
+      "phrase_key": "med.fever",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["yes_no"],
+      "en_gold": "Do you have a fever?",
+      "wo_gold": "",
+      "fr_cue": "Avez-vous de la fièvre ?",
+      "zh_cue": "发烧吗？",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 105,
+      "phrase_key": "med.drink_water",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["command"],
+      "en_gold": "Please drink water.",
+      "wo_gold": "",
+      "fr_cue": "Buvez de l'eau, s'il vous plaît.",
+      "zh_cue": "请喝水。",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 106,
+      "phrase_key": "med.dose_schedule",
+      "category": "medical",
+      "length": "medium",
+      "phenomena": ["command", "number", "time"],
+      "en_gold": "Take two tablets in the morning and two at night.",
+      "wo_gold": "",
+      "fr_cue": "Prenez deux comprimés le matin et deux le soir.",
+      "zh_cue": "早上两片，晚上两片。",
+      "source": "rewrite",
+      "notes": "Replaces incomplete 'Take twice a day.' Locks dose and time of day."
+    },
+    {
+      "phrase_id": 107,
+      "phrase_key": "med.take_medicine",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["command"],
+      "en_gold": "Take medicine.",
+      "wo_gold": "",
+      "fr_cue": "Prenez le médicament.",
+      "zh_cue": "请吃药。",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 108,
+      "phrase_key": "med.return_tomorrow",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["command", "time"],
+      "en_gold": "Come back tomorrow.",
+      "wo_gold": "",
+      "fr_cue": "Revenez demain.",
+      "zh_cue": "明天再来。",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 109,
+      "phrase_key": "med.dizzy",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["yes_no"],
+      "en_gold": "Do you feel dizzy?",
+      "wo_gold": "",
+      "fr_cue": "Avez-vous des vertiges ?",
+      "zh_cue": "头晕吗？",
+      "source": "keep",
+      "notes": "Old French was only 'Vertiges ?'"
+    },
+    {
+      "phrase_id": 110,
+      "phrase_key": "med.pain_severe",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["yes_no"],
+      "en_gold": "Is the pain severe?",
+      "wo_gold": "",
+      "fr_cue": "La douleur est-elle forte ?",
+      "zh_cue": "很疼吗？",
+      "source": "keep",
+      "notes": "Locked article so WER is defined. Old prompt was 'Is pain severe?'"
+    },
+    {
+      "phrase_id": 111,
+      "phrase_key": "med.sit_down",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["command"],
+      "en_gold": "Please sit down.",
+      "wo_gold": "",
+      "fr_cue": "Asseyez-vous, s'il vous plaît.",
+      "zh_cue": "请坐下。",
+      "source": "add",
+      "notes": "Clinic command, different verb from drink/take."
+    },
+    {
+      "phrase_id": 112,
+      "phrase_key": "med.no_pain",
+      "category": "medical",
+      "length": "short",
+      "phenomena": ["negation"],
+      "en_gold": "I do not have pain.",
+      "wo_gold": "",
+      "fr_cue": "Je n'ai pas mal.",
+      "zh_cue": "我不疼。",
+      "source": "add",
+      "notes": "Only negation in the medical bucket."
+    },
+    {
+      "phrase_id": 113,
+      "phrase_key": "daily.hello",
+      "category": "daily",
+      "length": "short",
+      "phenomena": ["question"],
+      "en_gold": "Hello, how are you?",
+      "wo_gold": "",
+      "fr_cue": "Bonjour, comment allez-vous ?",
+      "zh_cue": "你好，你好吗？",
+      "source": "keep",
+      "notes": "Old French was only 'Bonjour' — not a parallel pair."
+    },
+    {
+      "phrase_id": 114,
+      "phrase_key": "daily.fine",
+      "category": "daily",
+      "length": "short",
+      "phenomena": [],
+      "en_gold": "I am fine.",
+      "wo_gold": "",
+      "fr_cue": "Je vais bien.",
+      "zh_cue": "我很好。",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 115,
+      "phrase_key": "daily.name_ask",
+      "category": "daily",
+      "length": "short",
+      "phenomena": ["question", "name"],
+      "en_gold": "What is your name?",
+      "wo_gold": "",
+      "fr_cue": "Comment vous appelez-vous ?",
+      "zh_cue": "你叫什么名字？",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 116,
+      "phrase_key": "daily.name_awa",
+      "category": "daily",
+      "length": "short",
+      "phenomena": ["name"],
+      "en_gold": "My name is Awa.",
+      "wo_gold": "",
+      "fr_cue": "Je m'appelle Awa.",
+      "zh_cue": "我叫阿娃。",
+      "source": "rewrite",
+      "notes": "Replaces 'My name is...' so speakers cannot invent a name."
+    },
+    {
+      "phrase_id": 117,
+      "phrase_key": "daily.thanks",
+      "category": "daily",
+      "length": "short",
+      "phenomena": [],
+      "en_gold": "Thank you.",
+      "wo_gold": "",
+      "fr_cue": "Merci.",
+      "zh_cue": "谢谢。",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 118,
+      "phrase_key": "daily.see_you",
+      "category": "daily",
+      "length": "short",
+      "phenomena": [],
+      "en_gold": "See you.",
+      "wo_gold": "",
+      "fr_cue": "À bientôt.",
+      "zh_cue": "再见。",
+      "source": "keep"
+    },
+    {
+      "phrase_id": 119,
+      "phrase_key": "daily.hospital",
+      "category": "daily",
+      "length": "short",
+      "phenomena": ["question", "location"],
+      "en_gold": "Where is the hospital?",
+      "wo_gold": "",
+      "fr_cue": "Où est l'hôpital ?",
+      "zh_cue": "医院在哪里？",
+      "source": "add"
+    },
+    {
+      "phrase_id": 120,
+      "phrase_key": "daily.wait",
+      "category": "daily",
+      "length": "short",
+      "phenomena": ["command"],
+      "en_gold": "Please wait a moment.",
+      "wo_gold": "",
+      "fr_cue": "Attendez un moment, s'il vous plaît.",
+      "zh_cue": "请稍等。",
+      "source": "add",
+      "notes": "Turn-taking / wait."
+    },
+    {
+      "phrase_id": 121,
+      "phrase_key": "repair.repeat",
+      "category": "repair",
+      "length": "medium",
+      "phenomena": ["negation", "repair", "two_sentence"],
+      "en_gold": "I do not understand. Please say that again.",
+      "wo_gold": "",
+      "fr_cue": "Je ne comprends pas. Répétez, s'il vous plaît.",
+      "zh_cue": "我听不懂。请再说一遍。",
+      "source": "add",
+      "notes": "Medium length plus clarification. Highest-value add for model ranking."
+    },
+    {
+      "phrase_id": 122,
+      "phrase_key": "daily.child_age",
+      "category": "daily",
+      "length": "medium",
+      "phenomena": ["number", "kinship"],
+      "en_gold": "The child is five years old.",
+      "wo_gold": "",
+      "fr_cue": "L'enfant a cinq ans.",
+      "zh_cue": "这个孩子五岁。",
+      "source": "add"
+    },
+    {
+      "phrase_id": 123,
+      "phrase_key": "gospel.pray_we",
+      "category": "gospel",
+      "length": "short",
+      "phenomena": ["pronoun"],
+      "en_gold": "We will pray for you.",
+      "wo_gold": "",
+      "fr_cue": "Nous prierons pour vous.",
+      "zh_cue": "我们会为你祷告。",
+      "source": "keep",
+      "notes": "Kept as the we-form. Dropped 'I will pray for you' as a near-duplicate."
+    },
+    {
+      "phrase_id": 124,
+      "phrase_key": "gospel.love_and_pray",
+      "category": "gospel",
+      "length": "medium",
+      "phenomena": ["two_sentence", "pronoun"],
+      "en_gold": "God loves you. We will pray for you.",
+      "wo_gold": "",
+      "fr_cue": "Dieu vous aime. Nous prierons pour vous.",
+      "zh_cue": "神爱你。我们会为你祷告。",
+      "source": "add",
+      "notes": "One medium gospel turn instead of four micro-lines (old 17–20)."
+    }
+  ]
+}

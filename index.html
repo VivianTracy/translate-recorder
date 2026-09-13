@@ -10,7 +10,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 1150px;
+      max-width: 1280px;
       margin: 20px auto;
       padding: 20px;
       background: #f7f9fc;
@@ -49,7 +49,7 @@
       color: #333;
     }
 
-    input, select {
+    input, select, textarea {
       width: 100%;
       margin-top: 5px;
       padding: 8px 10px;
@@ -57,6 +57,12 @@
       border-radius: 6px;
       box-sizing: border-box;
       font-size: 14px;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 58px;
+      resize: vertical;
     }
 
     table {
@@ -84,6 +90,14 @@
 
     tr.recording-row {
       background: #fff7df !important;
+    }
+
+    tr.pass-en td.col-en {
+      background: #eef6ff;
+    }
+
+    tr.pass-wo td.col-wo {
+      background: #eef6ff;
     }
 
     button {
@@ -135,11 +149,46 @@
       margin-bottom: 8px;
       color: #1f4e79;
     }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid #c9d6e5;
+      color: #35506b;
+      background: #f4f8fc;
+      margin: 0 4px 4px 0;
+    }
+
+    .badge.warn {
+      border-color: #e3c48a;
+      color: #7a5b14;
+      background: #fff7df;
+    }
+
+    .read-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #eef6ff;
+      border: 1px solid #c5d8ef;
+      border-radius: 8px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .gold-pending {
+      color: #9a6700;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
   <h1>Mission Phrase Recorder</h1>
-  <div class="subtitle">Phrase-by-phrase data collection for mission, medical, and simple gospel communication</div>
+  <div class="subtitle">
+    Frozen eval set <strong>aco_mission_eval_v1</strong> — 24 English gold lines for two-way English ↔ Wolof scoring.
+    Wolof gold is blank until a native speaker writes it. French and Chinese are cue cards, not references.
+  </div>
 
   <div class="panel">
     <strong>Recorder Metadata</strong>
@@ -172,22 +221,54 @@
 
       <label>
         Collection Batch
-	<select id="collectionBatch">
+        <select id="collectionBatch">
+          <option value="eval_v1_pass_a">Eval v1 Pass A (English)</option>
+          <option value="eval_v1_pass_b">Eval v1 Pass B (Wolof)</option>
           <option value="ACO_mission_wk1">ACO Mission wk1</option>
-          <option value="ACO_mission_wk1">ACO Mission wk2</option>
+          <option value="ACO_mission_wk2">ACO Mission wk2</option>
           <option value="ACO_staff">ACO local team</option>
           <option value="senegal_local">Senegal local</option>
-
         </select>
-
       </label>
+
+      <label>
+        Recording Pass
+        <select id="recordingPass">
+          <option value="A">Pass A — read English gold</option>
+          <option value="B">Pass B — read Wolof gold</option>
+        </select>
+      </label>
+
+      <label>
+        Spoken Language
+        <select id="spokenLanguage">
+          <option value="en">English</option>
+          <option value="wo">Wolof</option>
+          <option value="fr">French</option>
+        </select>
+      </label>
+
+      <label>
+        Default take quality
+        <select id="takeQuality">
+          <option value="keep">keep</option>
+          <option value="redo">redo</option>
+          <option value="noisy">noisy</option>
+        </select>
+      </label>
+    </div>
+    <div class="small">
+      Pass A: native English speakers read the English column exactly.
+      Pass B: native Wolof speakers read the Wolof column after gold is filled. Do not invent Wolof.
     </div>
   </div>
 
   <div class="panel">
     <div><strong>Status:</strong> <span id="status">Ready</span></div>
+    <div class="small" id="progress"></div>
     <div class="small" id="currentPhrase">No phrase selected</div>
     <div class="small" id="deviceInfo"></div>
+    <div id="readBox" class="read-box">Select a phrase, then read the highlighted line.</div>
   </div>
 
   <div id="app"></div>
@@ -196,60 +277,56 @@
     const SUPABASE_URL = "https://lnbyjgqtkcynqfxdyjki.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_ud7xUBP6Ckczrbwrvlu7NQ_l-vuWTX8";
     const BUCKET_NAME = "audio-files";
+    const EVAL_SET_ID = "aco_mission_eval_v1";
+    const META_KEYS = [
+      "contributor",
+      "speakerRole",
+      "nativeLanguage",
+      "country",
+      "collectionBatch",
+      "recordingPass",
+      "spokenLanguage",
+      "takeQuality"
+    ];
 
     const supabaseClient = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_ANON_KEY
     );
 
-    const phraseSections = [
-      {
-        key: "medical",
-        title: "Medical / 医疗 / Médical",
-        items: [
-          { id: 1, en: "Where does it hurt?", fr: "Où avez-vous mal ?", zh: "哪里不舒服？" },
-          { id: 2, en: "How long have you had this?", fr: "Depuis combien de temps ?", zh: "多久了？" },
-          { id: 3, en: "How do you feel?", fr: "Comment vous sentez-vous ?", zh: "感觉怎么样？" },
-          { id: 4, en: "Do you have a fever?", fr: "Avez-vous de la fièvre ?", zh: "发烧吗？" },
-          { id: 5, en: "Please drink water.", fr: "Buvez de l’eau", zh: "喝水" },
-          { id: 6, en: "Take twice a day.", fr: "Deux fois par jour", zh: "一天两次" },
-          { id: 7, en: "Take medicine.", fr: "Prenez le médicament", zh: "吃药" },
-          { id: 8, en: "Come back tomorrow.", fr: "Revenez demain", zh: "明天再来" },
-          { id: 9, en: "Do you feel dizzy?", fr: "Vertiges ?", zh: "头晕吗" },
-          { id: 10, en: "Is pain severe?", fr: "Douleur forte ?", zh: "很疼吗" }
-        ]
-      },
-      {
-        key: "daily communication",
-        title: "Daily Communication / 日常沟通 / Communication quotidienne",
-        items: [
-          { id: 11, en: "Hello, how are you?", fr: "Bonjour", zh: "你好" },
-          { id: 12, en: "I am fine.", fr: "Je vais bien", zh: "我很好" },
-          { id: 13, en: "What is your name?", fr: "Votre nom ?", zh: "你叫什么" },
-          { id: 14, en: "My name is...", fr: "Je m’appelle...", zh: "我叫" },
-          { id: 15, en: "Thank you.", fr: "Merci", zh: "谢谢" },
-          { id: 16, en: "See you.", fr: "À bientôt", zh: "再见" }
-        ]
-      },
-      {
-        key: "gospel sharing",
-        title: "Simple Gospel Sharing / 简单福音分享 / Partage simple de l’Évangile",
-        items: [
-          { id: 17, en: "God loves you.", fr: "Dieu vous aime", zh: "神爱你" },
-          { id: 18, en: "God is good.", fr: "Dieu est bon", zh: "神是好的" },
-          { id: 19, en: "We will pray for you.", fr: "Nous prions pour vous", zh: "我们为你祷告" },
-          { id: 20, en: "I will pray for you.", fr: "Je prie pour vous", zh: "我为你祷告" }
-        ]
-      }
+    const evalPhrases = [
+      { phrase_id: 101, phrase_key: "med.pain_where", category: "medical", length: "short", phenomena: ["question"], en_gold: "Where does it hurt?", wo_gold: "", fr_cue: "Où avez-vous mal ?", zh_cue: "哪里不舒服？" },
+      { phrase_id: 102, phrase_key: "med.duration", category: "medical", length: "short", phenomena: ["question", "time"], en_gold: "How long have you had this?", wo_gold: "", fr_cue: "Depuis combien de temps avez-vous cela ?", zh_cue: "这个情况多久了？" },
+      { phrase_id: 103, phrase_key: "med.how_feel", category: "medical", length: "short", phenomena: ["question"], en_gold: "How do you feel?", wo_gold: "", fr_cue: "Comment vous sentez-vous ?", zh_cue: "感觉怎么样？" },
+      { phrase_id: 104, phrase_key: "med.fever", category: "medical", length: "short", phenomena: ["yes_no"], en_gold: "Do you have a fever?", wo_gold: "", fr_cue: "Avez-vous de la fièvre ?", zh_cue: "发烧吗？" },
+      { phrase_id: 105, phrase_key: "med.drink_water", category: "medical", length: "short", phenomena: ["command"], en_gold: "Please drink water.", wo_gold: "", fr_cue: "Buvez de l'eau, s'il vous plaît.", zh_cue: "请喝水。" },
+      { phrase_id: 106, phrase_key: "med.dose_schedule", category: "medical", length: "medium", phenomena: ["command", "number", "time"], en_gold: "Take two tablets in the morning and two at night.", wo_gold: "", fr_cue: "Prenez deux comprimés le matin et deux le soir.", zh_cue: "早上两片，晚上两片。" },
+      { phrase_id: 107, phrase_key: "med.take_medicine", category: "medical", length: "short", phenomena: ["command"], en_gold: "Take medicine.", wo_gold: "", fr_cue: "Prenez le médicament.", zh_cue: "请吃药。" },
+      { phrase_id: 108, phrase_key: "med.return_tomorrow", category: "medical", length: "short", phenomena: ["command", "time"], en_gold: "Come back tomorrow.", wo_gold: "", fr_cue: "Revenez demain.", zh_cue: "明天再来。" },
+      { phrase_id: 109, phrase_key: "med.dizzy", category: "medical", length: "short", phenomena: ["yes_no"], en_gold: "Do you feel dizzy?", wo_gold: "", fr_cue: "Avez-vous des vertiges ?", zh_cue: "头晕吗？" },
+      { phrase_id: 110, phrase_key: "med.pain_severe", category: "medical", length: "short", phenomena: ["yes_no"], en_gold: "Is the pain severe?", wo_gold: "", fr_cue: "La douleur est-elle forte ?", zh_cue: "很疼吗？" },
+      { phrase_id: 111, phrase_key: "med.sit_down", category: "medical", length: "short", phenomena: ["command"], en_gold: "Please sit down.", wo_gold: "", fr_cue: "Asseyez-vous, s'il vous plaît.", zh_cue: "请坐下。" },
+      { phrase_id: 112, phrase_key: "med.no_pain", category: "medical", length: "short", phenomena: ["negation"], en_gold: "I do not have pain.", wo_gold: "", fr_cue: "Je n'ai pas mal.", zh_cue: "我不疼。" },
+      { phrase_id: 113, phrase_key: "daily.hello", category: "daily", length: "short", phenomena: ["question"], en_gold: "Hello, how are you?", wo_gold: "", fr_cue: "Bonjour, comment allez-vous ?", zh_cue: "你好，你好吗？" },
+      { phrase_id: 114, phrase_key: "daily.fine", category: "daily", length: "short", phenomena: [], en_gold: "I am fine.", wo_gold: "", fr_cue: "Je vais bien.", zh_cue: "我很好。" },
+      { phrase_id: 115, phrase_key: "daily.name_ask", category: "daily", length: "short", phenomena: ["question", "name"], en_gold: "What is your name?", wo_gold: "", fr_cue: "Comment vous appelez-vous ?", zh_cue: "你叫什么名字？" },
+      { phrase_id: 116, phrase_key: "daily.name_awa", category: "daily", length: "short", phenomena: ["name"], en_gold: "My name is Awa.", wo_gold: "", fr_cue: "Je m'appelle Awa.", zh_cue: "我叫阿娃。" },
+      { phrase_id: 117, phrase_key: "daily.thanks", category: "daily", length: "short", phenomena: [], en_gold: "Thank you.", wo_gold: "", fr_cue: "Merci.", zh_cue: "谢谢。" },
+      { phrase_id: 118, phrase_key: "daily.see_you", category: "daily", length: "short", phenomena: [], en_gold: "See you.", wo_gold: "", fr_cue: "À bientôt.", zh_cue: "再见。" },
+      { phrase_id: 119, phrase_key: "daily.hospital", category: "daily", length: "short", phenomena: ["question", "location"], en_gold: "Where is the hospital?", wo_gold: "", fr_cue: "Où est l'hôpital ?", zh_cue: "医院在哪里？" },
+      { phrase_id: 120, phrase_key: "daily.wait", category: "daily", length: "short", phenomena: ["command"], en_gold: "Please wait a moment.", wo_gold: "", fr_cue: "Attendez un moment, s'il vous plaît.", zh_cue: "请稍等。" },
+      { phrase_id: 121, phrase_key: "repair.repeat", category: "repair", length: "medium", phenomena: ["negation", "repair", "two_sentence"], en_gold: "I do not understand. Please say that again.", wo_gold: "", fr_cue: "Je ne comprends pas. Répétez, s'il vous plaît.", zh_cue: "我听不懂。请再说一遍。" },
+      { phrase_id: 122, phrase_key: "daily.child_age", category: "daily", length: "medium", phenomena: ["number", "kinship"], en_gold: "The child is five years old.", wo_gold: "", fr_cue: "L'enfant a cinq ans.", zh_cue: "这个孩子五岁。" },
+      { phrase_id: 123, phrase_key: "gospel.pray_we", category: "gospel", length: "short", phenomena: ["pronoun"], en_gold: "We will pray for you.", wo_gold: "", fr_cue: "Nous prierons pour vous.", zh_cue: "我们会为你祷告。" },
+      { phrase_id: 124, phrase_key: "gospel.love_and_pray", category: "gospel", length: "medium", phenomena: ["two_sentence", "pronoun"], en_gold: "God loves you. We will pray for you.", wo_gold: "", fr_cue: "Dieu vous aime. Nous prierons pour vous.", zh_cue: "神爱你。我们会为你祷告。" }
     ];
 
-    const allPhrases = phraseSections.flatMap(section =>
-      section.items.map(item => ({
-        ...item,
-        phrase_category: section.key,
-        category_title: section.title
-      }))
-    );
+    const phraseSections = [
+      { key: "medical", title: "Medical / 医疗 / Médical" },
+      { key: "daily", title: "Daily Communication / 日常沟通 / Communication quotidienne" },
+      { key: "repair", title: "Repair / 澄清 / Clarification" },
+      { key: "gospel", title: "Simple Gospel Sharing / 简单福音分享 / Partage simple de l’Évangile" }
+    ];
 
     let mediaRecorder = null;
     let audioChunks = [];
@@ -257,41 +334,127 @@
     let stream = null;
     let currentPhraseId = null;
     let recordingStartedAt = null;
+    let woGold = {};
 
     document.getElementById("deviceInfo").textContent = "Device: " + navigator.userAgent;
 
+    function loadLocalState() {
+      try {
+        const savedMeta = JSON.parse(localStorage.getItem("eval_v1_meta") || "{}");
+        META_KEYS.forEach(id => {
+          if (savedMeta[id]) document.getElementById(id).value = savedMeta[id];
+        });
+        woGold = JSON.parse(localStorage.getItem("eval_v1_wo_gold") || "{}");
+      } catch (err) {
+        console.warn("Could not restore local eval state", err);
+      }
+    }
+
+    function saveMeta() {
+      const meta = {};
+      META_KEYS.forEach(id => {
+        meta[id] = document.getElementById(id).value;
+      });
+      localStorage.setItem("eval_v1_meta", JSON.stringify(meta));
+    }
+
+    function saveWoGold() {
+      localStorage.setItem("eval_v1_wo_gold", JSON.stringify(woGold));
+    }
+
     function getPhraseById(id) {
-      return allPhrases.find(p => p.id === id);
+      return evalPhrases.find(p => p.phrase_id === id);
+    }
+
+    function getWoGold(phrase) {
+      const typed = (woGold[phrase.phrase_key] || "").trim();
+      return typed || (phrase.wo_gold || "").trim();
+    }
+
+    function getSpokenLanguage() {
+      return document.getElementById("spokenLanguage").value;
+    }
+
+    function getRecordingPass() {
+      return document.getElementById("recordingPass").value;
+    }
+
+    function getReadText(phrase) {
+      const spoken = getSpokenLanguage();
+      if (spoken === "wo") return getWoGold(phrase);
+      if (spoken === "fr") return phrase.fr_cue;
+      return phrase.en_gold;
+    }
+
+    function canRecord(phrase) {
+      if (getSpokenLanguage() === "wo" && !getWoGold(phrase)) return false;
+      return true;
+    }
+
+    function updateProgress() {
+      const uploaded = evalPhrases.filter(p => recordings[p.phrase_id]?.uploaded).length;
+      const recorded = evalPhrases.filter(p => recordings[p.phrase_id]).length;
+      const woFilled = evalPhrases.filter(p => getWoGold(p)).length;
+      document.getElementById("progress").textContent =
+        `Eval ${EVAL_SET_ID} | Pass ${getRecordingPass()} / ${getSpokenLanguage()} | ${recorded}/24 recorded locally | ${uploaded}/24 uploaded | Wolof gold ${woFilled}/24`;
+    }
+
+    function updateReadBox(phrase) {
+      const box = document.getElementById("readBox");
+      if (!phrase) {
+        box.textContent = "Select a phrase, then read the highlighted line.";
+        return;
+      }
+      const text = getReadText(phrase);
+      if (!text) {
+        box.innerHTML = `<span class="status-bad">Pass B needs Wolof gold for ${phrase.phrase_key} before you record.</span>`;
+        return;
+      }
+      box.innerHTML = `<div class="small">Read this exactly (${getSpokenLanguage()} · ${phrase.phrase_key} · ${phrase.length})</div>${text}`;
     }
 
     function render() {
+      const passClass = getSpokenLanguage() === "wo" ? "pass-wo" : "pass-en";
       let html = "";
 
       phraseSections.forEach(section => {
+        const items = evalPhrases.filter(p => p.category === section.key);
+        if (!items.length) return;
+
         html += `<h2 class="category-title">${section.title}</h2>`;
         html += `
           <table>
             <tr>
-              <th style="width:50px;">#</th>
-              <th>English</th>
-              <th>French</th>
-              <th>Chinese</th>
+              <th style="width:46px;">#</th>
+              <th>English gold</th>
+              <th>Wolof gold</th>
+              <th>French cue</th>
+              <th>Chinese cue</th>
               <th style="width:320px;">Actions</th>
             </tr>
         `;
 
-        section.items.forEach(p => {
+        items.forEach(p => {
+          const wo = getWoGold(p);
+          const tags = [`<span class="badge">${p.length}</span>`]
+            .concat(p.phenomena.map(tag => `<span class="badge">${tag}</span>`))
+            .join("");
+          const recordDisabled = canRecord(p) ? "" : "disabled";
           html += `
-            <tr id="row-${p.id}">
-              <td>${p.id}</td>
-              <td>${p.en}</td>
-              <td>${p.fr}</td>
-              <td>${p.zh}</td>
+            <tr id="row-${p.phrase_id}" class="${passClass}">
+              <td>${p.phrase_id}<div class="small">${p.phrase_key}</div></td>
+              <td class="col-en"><strong>${p.en_gold}</strong><div class="small">${tags}</div></td>
+              <td class="col-wo">
+                <textarea id="wo-${p.phrase_id}" placeholder="Native speaker writes gold here">${wo}</textarea>
+                ${wo ? "" : `<div class="gold-pending">Gold pending — do not machine-translate</div>`}
+              </td>
+              <td>${p.fr_cue}</td>
+              <td>${p.zh_cue}</td>
               <td>
-                <button id="record-${p.id}" onclick="startRec(${p.id})">Record</button>
-                <button id="stop-${p.id}" onclick="stopRec(${p.id})" disabled>Stop</button>
-                <button id="upload-${p.id}" onclick="uploadRec(${p.id})" disabled>Upload</button>
-                <div id="audio-${p.id}" class="small">No recording yet</div>
+                <button id="record-${p.phrase_id}" onclick="startRec(${p.phrase_id})" ${recordDisabled}>Record</button>
+                <button id="stop-${p.phrase_id}" onclick="stopRec(${p.phrase_id})" disabled>Stop</button>
+                <button id="upload-${p.phrase_id}" onclick="uploadRec(${p.phrase_id})" disabled>Upload</button>
+                <div id="audio-${p.phrase_id}" class="small">No recording yet</div>
               </td>
             </tr>
           `;
@@ -301,12 +464,34 @@
       });
 
       document.getElementById("app").innerHTML = html;
+
+      evalPhrases.forEach(p => {
+        const field = document.getElementById(`wo-${p.phrase_id}`);
+        if (!field) return;
+        field.addEventListener("input", () => {
+          woGold[p.phrase_key] = field.value;
+          saveWoGold();
+          updateProgress();
+          const recordBtn = document.getElementById(`record-${p.phrase_id}`);
+          if (recordBtn && (!mediaRecorder || mediaRecorder.state !== "recording")) {
+            recordBtn.disabled = !canRecord(p);
+          }
+          const pending = field.parentElement.querySelector(".gold-pending");
+          if (field.value.trim() && pending) pending.remove();
+        });
+      });
+
+      updateProgress();
     }
 
     function resetRowStyles() {
       document.querySelectorAll("tr").forEach(row => row.classList.remove("recording-row"));
-      document.querySelectorAll('[id^="record-"]').forEach(btn => btn.disabled = false);
-      document.querySelectorAll('[id^="stop-"]').forEach(btn => btn.disabled = true);
+      evalPhrases.forEach(p => {
+        const recordBtn = document.getElementById(`record-${p.phrase_id}`);
+        const stopBtn = document.getElementById(`stop-${p.phrase_id}`);
+        if (recordBtn) recordBtn.disabled = !canRecord(p);
+        if (stopBtn) stopBtn.disabled = true;
+      });
     }
 
     async function startRec(id) {
@@ -317,9 +502,16 @@
         }
 
         const phrase = getPhraseById(id);
-        document.getElementById("status").textContent = `Requesting microphone for phrase ${id}...`;
+        const readText = getReadText(phrase);
+        if (!readText) {
+          alert("Enter Wolof gold for this phrase before Pass B.");
+          return;
+        }
+
+        document.getElementById("status").textContent = `Requesting microphone for ${phrase.phrase_key}...`;
         document.getElementById("currentPhrase").textContent =
-          `#${id} | ${phrase.phrase_category} | EN: ${phrase.en} | FR: ${phrase.fr} | 中文: ${phrase.zh}`;
+          `#${id} | ${phrase.phrase_key} | ${getSpokenLanguage()} | ${readText}`;
+        updateReadBox(phrase);
 
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -349,7 +541,7 @@
           document.getElementById(`stop-${id}`).disabled = false;
           document.getElementById(`audio-${id}`).innerHTML =
             `<span class="status-recording">Recording...</span>`;
-          document.getElementById("status").textContent = `Recording phrase ${id}...`;
+          document.getElementById("status").textContent = `Recording ${phrase.phrase_key}...`;
         };
 
         mediaRecorder.onstop = () => {
@@ -364,7 +556,8 @@
             blob,
             url,
             mimeType: mimeTypeFinal,
-            durationSec
+            durationSec,
+            uploaded: false
           };
 
           document.getElementById(`audio-${id}`).innerHTML = `
@@ -373,7 +566,7 @@
           `;
 
           document.getElementById(`upload-${id}`).disabled = false;
-          document.getElementById("status").textContent = `Recorded phrase ${id}`;
+          document.getElementById("status").textContent = `Recorded ${phrase.phrase_key}`;
 
           if (stream) {
             stream.getTracks().forEach(t => t.stop());
@@ -385,6 +578,7 @@
           currentPhraseId = null;
           recordingStartedAt = null;
           resetRowStyles();
+          updateProgress();
         };
 
         mediaRecorder.onerror = (event) => {
@@ -419,6 +613,36 @@
       mediaRecorder.stop();
     }
 
+    function buildEvalMeta(phrase, rec) {
+      const spokenLanguage = getSpokenLanguage();
+      const recordingPass = getRecordingPass();
+      const takeQuality = document.getElementById("takeQuality").value;
+      const woText = getWoGold(phrase);
+      const readText = getReadText(phrase);
+      return {
+        eval_set_id: EVAL_SET_ID,
+        phrase_id: phrase.phrase_id,
+        phrase_key: phrase.phrase_key,
+        spoken_language: spokenLanguage,
+        recording_pass: recordingPass,
+        take_quality: takeQuality,
+        prompt_text: readText,
+        en_gold: phrase.en_gold,
+        wo_gold: woText || null,
+        fr_cue: phrase.fr_cue,
+        zh_cue: phrase.zh_cue,
+        phrase_category: phrase.category,
+        length: phrase.length,
+        phenomena: phrase.phenomena,
+        audio_duration_sec: rec.durationSec ? Number(rec.durationSec) : null
+      };
+    }
+
+    async function insertSample(payload) {
+      const { error } = await supabaseClient.from("samples").insert([payload]);
+      return error;
+    }
+
     async function uploadRec(id) {
       try {
         const rec = recordings[id];
@@ -432,13 +656,18 @@
         const nativeLanguage = document.getElementById("nativeLanguage").value.trim() || null;
         const country = document.getElementById("country").value.trim() || null;
         const collectionBatch = document.getElementById("collectionBatch").value.trim() || null;
-
         const phrase = getPhraseById(id);
+        const evalMeta = buildEvalMeta(phrase, rec);
+
+        if (evalMeta.spoken_language === "wo" && !evalMeta.wo_gold) {
+          alert("Enter Wolof gold before uploading a Pass B take.");
+          return;
+        }
 
         const ext = rec.mimeType.includes("webm") ? "webm" : "bin";
-        const fileName = `${contributor}/phrase_${String(id).padStart(2, "0")}_${Date.now()}.${ext}`;
+        const fileName = `${contributor}/${EVAL_SET_ID}/${evalMeta.spoken_language}/${phrase.phrase_key}_${Date.now()}.${ext}`;
 
-        document.getElementById("status").textContent = `Uploading phrase ${id}...`;
+        document.getElementById("status").textContent = `Uploading ${phrase.phrase_key}...`;
         document.getElementById(`audio-${id}`).innerHTML +=
           `<div class="small">Uploading...</div>`;
 
@@ -462,23 +691,37 @@
           .from(BUCKET_NAME)
           .getPublicUrl(fileName);
 
-        const payload = {
-          phrase_id: id,
+        const basePayload = {
+          phrase_id: phrase.phrase_id,
           audio_url: publicData.publicUrl,
-          prompt_text: phrase.en,
+          prompt_text: evalMeta.prompt_text,
           contributor_id: contributor,
-          phrase_category: phrase.phrase_category,
+          phrase_category: phrase.category,
           native_language: nativeLanguage,
           speaker_role: speakerRole,
           country: country,
-          audio_duration_sec: rec.durationSec ? Number(rec.durationSec) : null,
+          audio_duration_sec: evalMeta.audio_duration_sec,
           collection_batch: collectionBatch,
-          device_info: navigator.userAgent
+          device_info: JSON.stringify({
+            user_agent: navigator.userAgent,
+            ...evalMeta
+          })
         };
 
-        const { error: dbError } = await supabaseClient
-          .from("samples")
-          .insert([payload]);
+        const fullPayload = {
+          ...basePayload,
+          phrase_key: phrase.phrase_key,
+          spoken_language: evalMeta.spoken_language,
+          take_quality: evalMeta.take_quality,
+          en_gold: phrase.en_gold,
+          wo_gold: evalMeta.wo_gold
+        };
+
+        let dbError = await insertSample(fullPayload);
+        if (dbError) {
+          console.warn("Full sample insert failed, retrying with base columns", dbError);
+          dbError = await insertSample(basePayload);
+        }
 
         if (dbError) {
           console.error(dbError);
@@ -487,15 +730,41 @@
           return;
         }
 
+        rec.uploaded = true;
         document.getElementById(`upload-${id}`).disabled = true;
         document.getElementById(`audio-${id}`).innerHTML += `<div class="small status-good">Uploaded to Supabase</div>`;
-        document.getElementById("status").innerHTML = `<span class="status-good">Uploaded phrase ${id} successfully</span>`;
+        document.getElementById("status").innerHTML = `<span class="status-good">Uploaded ${phrase.phrase_key}</span>`;
+        updateProgress();
       } catch (err) {
         console.error(err);
         document.getElementById("status").innerHTML = `<span class="status-bad">Unexpected error</span>`;
         alert(err.message);
       }
     }
+
+    function syncPassAndLanguage() {
+      const pass = getRecordingPass();
+      const spoken = document.getElementById("spokenLanguage");
+      const batch = document.getElementById("collectionBatch");
+      if (pass === "A" && spoken.value === "wo") spoken.value = "en";
+      if (pass === "B" && spoken.value === "en") spoken.value = "wo";
+      if (pass === "A" && batch.value === "eval_v1_pass_b") batch.value = "eval_v1_pass_a";
+      if (pass === "B" && batch.value === "eval_v1_pass_a") batch.value = "eval_v1_pass_b";
+      saveMeta();
+      render();
+    }
+
+    loadLocalState();
+    META_KEYS.forEach(id => {
+      document.getElementById(id).addEventListener("change", () => {
+        if (id === "recordingPass") syncPassAndLanguage();
+        else {
+          saveMeta();
+          updateProgress();
+          if (id === "spokenLanguage") render();
+        }
+      });
+    });
 
     render();
     window.startRec = startRec;
