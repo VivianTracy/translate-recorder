@@ -11,7 +11,7 @@
   "recording_protocol": {
     "pass_a": {
       "spoken_language": "en",
-      "who": "At least two native English speakers",
+      "who": "TTS (macos_say / Samantha), stored as contributor tts_en_v1",
       "reads": "en_gold, exactly as written",
       "scores": ["EN→WO speech translation", "Wolof TTS listenability"]
     },
@@ -22,11 +22,11 @@
       "scores": ["WO ASR", "WO→EN translation", "English TTS listenability"]
     },
     "take_rules": [
-      "Quiet room, phone 20–30 cm from the mouth",
+      "Pass A is generated and uploaded to Supabase; do not recruit English speakers",
+      "Quiet room for Pass B, phone 20–30 cm from the mouth",
       "One phrase per take",
-      "Set spoken_language and native_language before the first record",
       "Mark take_quality keep / redo / noisy",
-      "Target ~48–60 clips (2 speakers × 2 passes × 24 phrases, dropping obvious redos)"
+      "Target 24 TTS English clips plus ~24–48 Wolof clips"
     ]
   },
   "scoring": {
