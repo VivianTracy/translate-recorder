@@ -270,7 +270,7 @@
       Samantha reads each frozen English line as 16 kHz mono WAV, then the app writes the clip to Supabase storage and <code>samples</code>.
     </div>
     <div style="margin-top:10px;">
-      <button class="primary" id="generatePassA" onclick="ensurePassAUploaded(true)">Save Pass A English to Supabase</button>
+      <button class="primary" id="generatePassA" onclick="ensurePassAUploaded(false)">Save Pass A English to Supabase</button>
     </div>
     <div class="small" id="passAStatus">Checking Supabase for Pass A clips…</div>
   </div>
@@ -821,7 +821,6 @@
 
       if (error) {
         console.warn("Could not list Pass A samples", error);
-        return 0;
       }
 
       for (const row of data || []) {
@@ -835,25 +834,70 @@
           else console.warn("Could not sign Pass A clip", phrase.phrase_key, err);
         }
       }
+
+      for (const phrase of evalPhrases) {
+        if (passAClips[phrase.phrase_key]) continue;
+        try {
+          const signedUrl = await signedPassAUrl(phrase);
+          rememberPassAClip(phrase, signedUrl, null);
+        } catch (_err) {
+          // File is not in storage yet.
+        }
+      }
       return Object.keys(passAClips).length;
     }
 
-    async function uploadPassAPhrase(phrase, blob, durationSec) {
-      const fileName = `${TTS_CONTRIBUTOR}/${EVAL_SET_ID}/en/${phrase.phrase_key}.wav`;
-      const { error: uploadError } = await supabaseClient
-        .storage
-        .from(BUCKET_NAME)
-        .upload(fileName, blob, {
-          contentType: "audio/wav",
-          upsert: true
-        });
+    async function passARowExists(phrase) {
+      const { data, error } = await supabaseClient
+        .from("samples")
+        .select("phrase_id")
+        .eq("contributor_id", TTS_CONTRIBUTOR)
+        .eq("collection_batch", PASS_A_BATCH)
+        .eq("phrase_id", phrase.phrase_id)
+        .limit(1);
+      return !error && (data || []).length > 0;
+    }
 
-      if (uploadError) throw uploadError;
+    function isBenignWriteError(error) {
+      const text = `${error?.message || ""} ${error?.details || ""}`.toLowerCase();
+      return /duplicate|unique|already exists|resource already exists|the resource already exists/.test(text);
+    }
+
+    function isRlsError(error) {
+      return /row-level security|violates.*policy/i.test(error?.message || "");
+    }
+
+    async function uploadPassAPhrase(phrase, blob, durationSec) {
+      const fileName = passAStoragePath(phrase);
+      let playUrl = null;
+
+      try {
+        playUrl = await signedPassAUrl(phrase);
+      } catch (_err) {
+        const { error: uploadError } = await supabaseClient
+          .storage
+          .from(BUCKET_NAME)
+          .upload(fileName, blob, {
+            contentType: "audio/wav",
+            upsert: false
+          });
+
+        if (uploadError && !isBenignWriteError(uploadError)) {
+          throw uploadError;
+        }
+        playUrl = await signedPassAUrl(phrase);
+      }
 
       const { data: publicData } = supabaseClient
         .storage
         .from(BUCKET_NAME)
         .getPublicUrl(fileName);
+
+      rememberPassAClip(phrase, playUrl, durationSec);
+
+      if (await passARowExists(phrase)) {
+        return publicData.publicUrl;
+      }
 
       const rec = { durationSec };
       const evalMeta = buildEvalMeta(phrase, rec, {
@@ -892,20 +936,16 @@
         wo_gold: null
       };
 
-      const playUrl = await signedPassAUrl(phrase).catch(() => publicData.publicUrl);
-      if (passAClips[phrase.phrase_key]) {
-        rememberPassAClip(phrase, playUrl, durationSec);
-        return publicData.publicUrl;
-      }
-
       let dbError = await insertSample(fullPayload);
       if (dbError) {
         console.warn("Full Pass A insert failed, retrying with base columns", dbError);
         dbError = await insertSample(basePayload);
       }
-      rememberPassAClip(phrase, playUrl, durationSec);
-      if (dbError && !/duplicate|unique/i.test(dbError.message || "")) {
+      if (dbError && !isBenignWriteError(dbError) && !isRlsError(dbError)) {
         throw dbError;
+      }
+      if (dbError && isRlsError(dbError)) {
+        console.warn("Pass A audio is stored; samples insert blocked by RLS", phrase.phrase_key, dbError);
       }
       return publicData.publicUrl;
     }
