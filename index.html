@@ -182,16 +182,6 @@
       font-size: 12px;
     }
 
-    button.primary {
-      background: #1f4e79;
-      color: white;
-      border-color: #1f4e79;
-      padding: 8px 14px;
-    }
-
-    button.primary:hover:not(:disabled) {
-      background: #163a5a;
-    }
   </style>
 </head>
 <body>
@@ -267,10 +257,8 @@
   <div class="panel">
     <strong>Pass A · English TTS</strong>
     <div class="small">
-      Samantha reads each frozen English line as 16 kHz mono WAV, then the app writes the clip to Supabase storage and <code>samples</code>.
-    </div>
-    <div style="margin-top:10px;">
-      <button class="primary" id="generatePassA" onclick="ensurePassAUploaded(false)">Save Pass A English to Supabase</button>
+      Frozen English lines are already stored in Supabase as 16 kHz Samantha reads
+      (<code>tts_en_v1</code>). This page only plays them.
     </div>
     <div class="small" id="passAStatus">Checking Supabase for Pass A clips…</div>
   </div>
@@ -953,8 +941,6 @@
     async function ensurePassAUploaded(force) {
       if (passABusy) return;
       passABusy = true;
-      const button = document.getElementById("generatePassA");
-      if (button) button.disabled = true;
 
       try {
         await loadPassAFromSupabase();
@@ -986,7 +972,6 @@
         document.getElementById("status").innerHTML = `<span class="status-bad">Pass A upload failed</span>`;
       } finally {
         passABusy = false;
-        if (button) button.disabled = false;
         updateProgress();
       }
     }
@@ -1005,7 +990,6 @@
     window.startRec = startRec;
     window.stopRec = stopRec;
     window.uploadRec = uploadRec;
-    window.ensurePassAUploaded = ensurePassAUploaded;
   </script>
 </body>
 </html>
